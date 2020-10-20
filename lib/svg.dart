@@ -213,7 +213,7 @@ class SvgPicture extends StatefulWidget {
     this.semanticsLabel,
     this.excludeFromSemantics = false,
     this.clipBehavior = Clip.hardEdge,
-    this.colorFilter,
+    this.colorFilter, this.image,
   }) : super(key: key);
 
   /// Instantiates a widget that renders an SVG picture from an [AssetBundle].
@@ -319,6 +319,7 @@ class SvgPicture extends StatefulWidget {
           package: package,
         ),
         colorFilter = _getColorFilter(color, colorBlendMode),
+        image = assetName,
         super(key: key);
 
   /// Creates a widget that displays a [PictureStream] obtained from the network.
@@ -374,6 +375,7 @@ class SvgPicture extends StatefulWidget {
           headers: headers,
         ),
         colorFilter = _getColorFilter(color, colorBlendMode),
+        image = url,
         super(key: key);
 
   /// Creates a widget that displays a [PictureStream] obtained from a [File].
@@ -417,7 +419,7 @@ class SvgPicture extends StatefulWidget {
     BlendMode colorBlendMode = BlendMode.srcIn,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-    this.clipBehavior = Clip.hardEdge,
+    this.clipBehavior = Clip.hardEdge, this.image,
   })  : pictureProvider = FilePicture(
           allowDrawingOutsideViewBox == true
               ? svgByteDecoderOutsideViewBox
@@ -465,7 +467,7 @@ class SvgPicture extends StatefulWidget {
     BlendMode colorBlendMode = BlendMode.srcIn,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-    this.clipBehavior = Clip.hardEdge,
+    this.clipBehavior = Clip.hardEdge, this.image,
   })  : pictureProvider = MemoryPicture(
           allowDrawingOutsideViewBox == true
               ? svgByteDecoderOutsideViewBox
@@ -513,7 +515,7 @@ class SvgPicture extends StatefulWidget {
     BlendMode colorBlendMode = BlendMode.srcIn,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-    this.clipBehavior = Clip.hardEdge,
+    this.clipBehavior = Clip.hardEdge, this.image,
   })  : pictureProvider = StringPicture(
           allowDrawingOutsideViewBox == true
               ? svgStringDecoderOutsideViewBox
@@ -625,6 +627,8 @@ class SvgPicture extends StatefulWidget {
   /// The color filter, if any, to apply to this widget.
   final ColorFilter colorFilter;
 
+  final String image;
+
   @override
   State<SvgPicture> createState() => _SvgPictureState();
 }
@@ -728,6 +732,16 @@ class _SvgPictureState extends State<SvgPicture> {
     }
 
     Widget _maybeWrapColorFilter(Widget child) {
+      if (kIsWeb) {
+        return Image.network(
+          widget.image,
+          fit: widget.fit,
+          width: widget.width,
+          height: widget.height,
+          alignment: widget.alignment,
+        );
+      }
+
       if (widget.colorFilter == null) {
         return child;
       }
